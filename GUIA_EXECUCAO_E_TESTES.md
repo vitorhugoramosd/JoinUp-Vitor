@@ -76,10 +76,15 @@ O servidor estará disponível em: **http://localhost:8080**
 ## 🧪 Como Testar os Endpoints
 
 Você pode testar usando:
-- **cURL** (linha de comando)
+- **cURL** (linha de comando) - **⚠️ No PowerShell use `curl.exe` ou `Invoke-RestMethod`**
 - **Postman** (interface gráfica)
 - **Thunder Client** (extensão VS Code)
 - **Insomnia**
+
+**⚠️ IMPORTANTE - PowerShell do Windows:**
+No PowerShell, `curl` é um alias para `Invoke-WebRequest`. Use uma das opções:
+- `curl.exe` (curl real do Windows)
+- `Invoke-RestMethod` (recomendado - veja `GUIA_TESTES_POWERSHELL.md`)
 
 ---
 
