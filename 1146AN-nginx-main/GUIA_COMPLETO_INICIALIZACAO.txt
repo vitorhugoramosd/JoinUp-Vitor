@@ -1,0 +1,540 @@
+================================================================================
+  GUIA COMPLETO DE INICIALIZACAO - SISTEMA DE EVENTOS
+================================================================================
+
+Data: 2025-11-10
+Tempo total estimado: 5-7 minutos
+
+================================================================================
+PASSO 1: DOCKER DESKTOP
+================================================================================
+
+[x] Você já abriu o Docker Desktop
+[ ] Aguarde até o ícone ficar VERDE na bandeja do sistema (perto do relógio)
+[ ] Isso leva 30-60 segundos
+
+COMO VERIFICAR:
+- O ícone do Docker deve estar verde
+- Ou abra o Docker Desktop e veja se está escrito "Docker Desktop is running"
+
+⚠️ SÓ CONTINUE quando o Docker estiver totalmente iniciado!
+
+================================================================================
+PASSO 2: ABRIR 5 TERMINAIS
+================================================================================
+
+Você vai precisar de 5 janelas de terminal abertas ao mesmo tempo.
+
+COMO ABRIR UM TERMINAL:
+1. Pressione: Windows + R
+2. Digite: cmd
+3. Aperte Enter
+
+OU
+
+1. Clique na lupa do Windows (buscar)
+2. Digite: cmd
+3. Aperte Enter
+
+ABRA 5 TERMINAIS E DEIXE TODOS ABERTOS!
+
+================================================================================
+PASSO 3: INICIAR EUREKA (Service Discovery) - TERMINAL 1
+================================================================================
+
+No PRIMEIRO terminal, copie e cole este comando:
+
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\service-discovery
+mvnw.cmd spring-boot:run
+
+AGUARDE aparecer:
+"Started ServiceDiscoveryApplication in X seconds"
+
+Tempo: ~60 segundos
+
+⚠️ DEIXE ESTE TERMINAL ABERTO! Não feche!
+
+COMO VERIFICAR SE FUNCIONOU:
+Abra no navegador: http://localhost:8761
+Você deve ver a página do Eureka (fundo vermelho)
+
+================================================================================
+PASSO 4: INICIAR AUTH SERVICE - TERMINAL 2
+================================================================================
+
+No SEGUNDO terminal, copie e cole este comando:
+
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\auth-service
+mvnw.cmd spring-boot:run
+
+AGUARDE aparecer:
+"Started AuthServiceApplication in X seconds"
+
+Tempo: ~45 segundos
+
+⚠️ DEIXE ESTE TERMINAL ABERTO! Não feche!
+
+COMO VERIFICAR SE FUNCIONOU:
+Você verá no console: "Registered with Eureka"
+
+================================================================================
+PASSO 5: INICIAR EVENT SERVICE - TERMINAL 3
+================================================================================
+
+No TERCEIRO terminal, copie e cole este comando:
+
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\event-service
+mvnw.cmd spring-boot:run
+
+AGUARDE aparecer:
+"Started EventServiceApplication in X seconds"
+
+Tempo: ~45 segundos
+
+⚠️ DEIXE ESTE TERMINAL ABERTO! Não feche!
+
+COMO VERIFICAR SE FUNCIONOU:
+Você verá no console: "Registered with Eureka"
+
+================================================================================
+PASSO 6: INICIAR GATEWAY SERVICE - TERMINAL 4
+================================================================================
+
+No QUARTO terminal, copie e cole este comando:
+
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\gateway-service
+mvnw.cmd spring-boot:run
+
+AGUARDE aparecer:
+"Started GatewayServiceApplication in X seconds"
+
+Tempo: ~45 segundos
+
+⚠️ DEIXE ESTE TERMINAL ABERTO! Não feche!
+
+COMO VERIFICAR SE FUNCIONOU:
+Você verá no console: "Registered with Eureka"
+
+================================================================================
+PASSO 7: INICIAR TICKET SERVICE - TERMINAL 5
+================================================================================
+
+No QUINTO terminal, copie e cole este comando:
+
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\ticket-service
+mvnw.cmd spring-boot:run
+
+AGUARDE aparecer:
+"Started TicketServiceApplication in X seconds"
+
+Tempo: ~45 segundos
+
+⚠️ DEIXE ESTE TERMINAL ABERTO! Não feche!
+
+COMO VERIFICAR SE FUNCIONOU:
+Você verá no console: "Registered with Eureka"
+
+================================================================================
+PASSO 8: VERIFICAR SE TODOS OS SERVIÇOS ESTÃO REGISTRADOS
+================================================================================
+
+1. Abra o navegador
+2. Acesse: http://localhost:8761
+3. Na seção "Instances currently registered with Eureka", você deve ver:
+
+   ✅ AUTH-SERVICE
+   ✅ EVENT-SERVICE
+   ✅ GATEWAY-SERVICE
+   ✅ TICKET-SERVICE
+
+Se todos aparecerem, SUCESSO! ✅
+
+Se algum não aparecer:
+- Verifique o terminal daquele serviço
+- Procure por erros em vermelho
+- Aguarde mais 10-20 segundos e atualize a página
+
+================================================================================
+PASSO 9: ABRIR O FRONTEND
+================================================================================
+
+1. Abra o Windows Explorer (pasta)
+2. Navegue até: C:\Users\isabe\sistema_eventos\1146AN-nginx-main\frontend
+3. Clique duas vezes em: index.html
+
+OU
+
+Cole este caminho na barra de endereços do navegador:
+file:///C:/Users/isabe/sistema_eventos/1146AN-nginx-main/frontend/index.html
+
+O site deve abrir mostrando "Nenhum evento encontrado" (porque ainda não criamos eventos)
+
+================================================================================
+PASSO 10: TESTAR O SISTEMA - FLUXO COMPLETO
+================================================================================
+
+══════════════════════════════════════════════════════════════════════════════
+TESTE 1: CADASTRAR UM ORGANIZADOR (2 minutos)
+══════════════════════════════════════════════════════════════════════════════
+
+1. No site, clique em "Login" (canto superior direito)
+
+2. Clique em "Cadastre-se"
+
+3. Preencha o formulário:
+   - Primeiro Nome: Carlos
+   - Sobrenome: Produtor
+   - Email: carlos@eventos.com
+   - Senha: senha12345
+   - Tipo de Conta: Organizador (Criar Eventos)
+
+4. Clique em "Cadastrar"
+
+5. Aguarde mensagem de sucesso
+
+6. Será redirecionado para tela de login
+
+7. Faça login:
+   - Email: carlos@eventos.com
+   - Senha: senha12345
+
+8. Clique em "Entrar"
+
+✅ SUCESSO se você ver "Olá, Carlos" no canto superior direito!
+
+══════════════════════════════════════════════════════════════════════════════
+TESTE 2: CRIAR UM EVENTO (2 minutos)
+══════════════════════════════════════════════════════════════════════════════
+
+1. Clique em "Criar Evento" (menu superior)
+
+2. Preencha o formulário:
+   - Nome do Evento: Festival de Rock 2025
+   - Descrição: O maior festival de rock do Brasil com as melhores bandas
+   - Data e Hora: Escolha uma data futura (ex: 20/06/2025 às 18:00)
+   - Local: São Paulo, SP - Parque Ibirapuera
+   - Preço do Ingresso: 150.00
+   - Quantidade Total: 100
+
+3. Clique em "Criar Evento"
+
+4. Aguarde mensagem de sucesso
+
+5. Você será redirecionado para o Dashboard
+
+✅ SUCESSO se você ver:
+   - Total de Eventos: 1
+   - Ingressos Vendidos: 0
+   - Receita Total: R$ 0,00
+
+══════════════════════════════════════════════════════════════════════════════
+TESTE 3: VER O EVENTO COMO VISITANTE (30 segundos)
+══════════════════════════════════════════════════════════════════════════════
+
+1. Clique em "Eventos" (menu superior)
+
+2. Você deve ver o card do "Festival de Rock 2025"
+
+3. Clique em "Ver Detalhes"
+
+4. Veja todas as informações do evento
+
+✅ SUCESSO se você ver:
+   - Nome, descrição, data, local, preço
+   - Disponíveis: 100 de 100 ingressos
+   - Barra de progresso em 0%
+
+══════════════════════════════════════════════════════════════════════════════
+TESTE 4: CADASTRAR UM USUÁRIO NORMAL (2 minutos)
+══════════════════════════════════════════════════════════════════════════════
+
+1. Clique em "Sair" (canto superior direito)
+
+2. Clique em "Login"
+
+3. Clique em "Cadastre-se"
+
+4. Preencha o formulário:
+   - Primeiro Nome: Ana
+   - Sobrenome: Silva
+   - Email: ana@exemplo.com
+   - Senha: senha12345
+   - Tipo de Conta: Usuário (Comprar Ingressos)
+
+5. Clique em "Cadastrar"
+
+6. Faça login:
+   - Email: ana@exemplo.com
+   - Senha: senha12345
+
+✅ SUCESSO se você ver "Olá, Ana" no menu!
+
+══════════════════════════════════════════════════════════════════════════════
+TESTE 5: COMPRAR INGRESSOS (3 minutos)
+══════════════════════════════════════════════════════════════════════════════
+
+1. Clique em "Eventos" (menu)
+
+2. Clique no "Festival de Rock 2025"
+
+3. Clique em "Ver Detalhes"
+
+4. Clique em "Comprar Ingressos"
+
+5. Escolha Quantidade: 2
+
+6. Preencha dados do PARTICIPANTE 1:
+   - Nome Completo: Ana Silva
+   - CPF: 12345678909
+   - Email: ana@exemplo.com
+   - Data de Nascimento: 01/01/1990
+
+7. Preencha dados do PARTICIPANTE 2:
+   - Nome Completo: Roberto Lima
+   - CPF: 98765432100
+   - Email: roberto@exemplo.com
+   - Data de Nascimento: 15/05/1985
+
+8. Veja o Total: R$ 300,00 (2 x R$ 150,00)
+
+9. Clique em "Finalizar Compra"
+
+10. Aguarde mensagem de sucesso!
+
+✅ SUCESSO se aparecer:
+   "Compra realizada com sucesso!"
+   "Total: R$ 300.00"
+
+══════════════════════════════════════════════════════════════════════════════
+TESTE 6: VER DASHBOARD ATUALIZADO (1 minuto)
+══════════════════════════════════════════════════════════════════════════════
+
+1. Clique em "Sair"
+
+2. Faça login como organizador:
+   - Email: carlos@eventos.com
+   - Senha: senha12345
+
+3. Clique em "Dashboard"
+
+4. Veja as estatísticas atualizadas:
+
+✅ SUCESSO se você ver:
+   - Total de Eventos: 1
+   - Ingressos Vendidos: 2
+   - Receita Total: R$ 300,00
+   - Taxa Média de Ocupação: 2,00%
+
+5. Na tabela, você deve ver:
+   - Vendidos: 2
+   - Disponíveis: 98
+   - Receita: R$ 300,00
+   - Ocupação: 2,00% (barra vermelha)
+
+══════════════════════════════════════════════════════════════════════════════
+TESTE 7: BUSCAR EVENTOS (30 segundos)
+══════════════════════════════════════════════════════════════════════════════
+
+1. Clique em "Eventos" (menu)
+
+2. No campo de busca, digite: rock
+
+3. Clique em "Buscar"
+
+4. Deve aparecer o "Festival de Rock 2025"
+
+5. Digite: java
+
+6. Clique em "Buscar"
+
+7. Deve aparecer "Nenhum evento encontrado"
+
+✅ SUCESSO! A busca está funcionando!
+
+================================================================================
+RESUMO DOS SERVIÇOS
+================================================================================
+
+Após iniciar tudo, você terá:
+
+✅ 5 terminais abertos rodando os serviços
+✅ 1 navegador com o frontend aberto
+
+PORTAS UTILIZADAS:
+- 8761 - Eureka (Service Discovery)
+- 8084 - Auth Service
+- 8083 - Event Service
+- 8080 - Gateway Service
+- 8085 - Ticket Service
+
+BANCOS DE DADOS:
+- H2 em memória (não precisa configurar nada)
+- Dados são apagados quando você fechar os serviços
+
+================================================================================
+COMO PARAR TUDO
+================================================================================
+
+Quando quiser parar o sistema:
+
+1. Em cada terminal, pressione: Ctrl + C
+2. Aguarde o serviço parar (alguns segundos)
+3. Feche o terminal
+
+OU
+
+Simplesmente feche todas as janelas de terminal
+(Os serviços vão parar automaticamente)
+
+================================================================================
+PROBLEMAS COMUNS E SOLUÇÕES
+================================================================================
+
+──────────────────────────────────────────────────────────────────────────────
+PROBLEMA: Porta já está em uso
+──────────────────────────────────────────────────────────────────────────────
+
+ERRO: "Port 8083 was already in use"
+
+SOLUÇÃO:
+1. Feche o terminal daquele serviço
+2. Abra o Gerenciador de Tarefas (Ctrl + Shift + Esc)
+3. Procure por "java.exe"
+4. Clique com botão direito → Finalizar Tarefa
+5. Tente iniciar o serviço novamente
+
+──────────────────────────────────────────────────────────────────────────────
+PROBLEMA: Maven não encontrado
+──────────────────────────────────────────────────────────────────────────────
+
+ERRO: "'mvn' is not recognized as an internal or external command"
+
+SOLUÇÃO:
+Use mvnw.cmd ao invés de mvn (Maven Wrapper já incluído no projeto)
+Exemplo: mvnw.cmd spring-boot:run
+
+O Maven Wrapper baixa automaticamente a versão correta do Maven,
+você não precisa instalar nada!
+
+──────────────────────────────────────────────────────────────────────────────
+PROBLEMA: Serviço não registra no Eureka
+──────────────────────────────────────────────────────────────────────────────
+
+SINTOMA: No http://localhost:8761 não aparece o serviço
+
+SOLUÇÃO:
+1. Aguarde 30-60 segundos (registro leva tempo)
+2. Atualize a página do Eureka (F5)
+3. Verifique se o Eureka foi iniciado PRIMEIRO
+4. Verifique se não há erros no terminal do serviço
+
+──────────────────────────────────────────────────────────────────────────────
+PROBLEMA: Frontend não conecta com backend
+──────────────────────────────────────────────────────────────────────────────
+
+SINTOMA: Erro de conexão ao tentar cadastrar/login
+
+SOLUÇÃO:
+1. Abra F12 no navegador (Developer Tools)
+2. Vá na aba "Console"
+3. Veja qual serviço está dando erro
+4. Verifique se aquele serviço está rodando
+5. Teste acessar diretamente:
+   - http://localhost:8084/users (auth)
+   - http://localhost:8083/api/events (events)
+   - http://localhost:8085/api/tickets (tickets)
+
+──────────────────────────────────────────────────────────────────────────────
+PROBLEMA: Erro ao cadastrar usuário
+──────────────────────────────────────────────────────────────────────────────
+
+ERRO: "Email já cadastrado"
+
+SOLUÇÃO:
+Use um email diferente ou:
+1. Pare o auth-service (Ctrl + C)
+2. Inicie novamente (dados H2 são apagados)
+3. Tente cadastrar novamente
+
+──────────────────────────────────────────────────────────────────────────────
+PROBLEMA: CPF inválido ao comprar ingresso
+──────────────────────────────────────────────────────────────────────────────
+
+ERRO: "CPF inválido"
+
+SOLUÇÃO:
+Digite exatamente 11 dígitos numéricos, SEM pontos ou traços
+Exemplo correto: 12345678909
+Exemplo errado: 123.456.789-09
+
+──────────────────────────────────────────────────────────────────────────────
+PROBLEMA: Dashboard vazio
+──────────────────────────────────────────────────────────────────────────────
+
+SINTOMA: Dashboard não mostra eventos
+
+POSSÍVEIS CAUSAS:
+1. Você não criou nenhum evento ainda
+2. Você está logado como USER (precisa ser ORGANIZER)
+3. O organizerId está diferente do userId
+
+SOLUÇÃO:
+1. Faça logout
+2. Cadastre uma nova conta como ORGANIZER
+3. Faça login
+4. Crie um evento
+5. Acesse o dashboard
+
+================================================================================
+URLS IMPORTANTES
+================================================================================
+
+BACKEND:
+- Eureka Dashboard: http://localhost:8761
+- Gateway: http://localhost:8080
+- Auth Service: http://localhost:8084
+- Event Service: http://localhost:8083
+- Ticket Service: http://localhost:8085
+
+FRONTEND:
+- Página Principal: file:///C:/Users/isabe/sistema_eventos/1146AN-nginx-main/frontend/index.html
+- Login: file:///C:/Users/isabe/sistema_eventos/1146AN-nginx-main/frontend/login.html
+- Dashboard: file:///C:/Users/isabe/sistema_eventos/1146AN-nginx-main/frontend/dashboard.html
+
+DOCUMENTAÇÃO:
+- C:\Users\isabe\sistema_eventos\1146AN-nginx-main\SISTEMA_COMPLETO.md
+- C:\Users\isabe\sistema_eventos\1146AN-nginx-main\frontend\README.md
+
+================================================================================
+CHECKLIST FINAL
+================================================================================
+
+[ ] Docker Desktop rodando (ícone verde)
+[ ] 5 terminais abertos com serviços rodando
+[ ] Eureka mostrando 4 serviços registrados
+[ ] Frontend aberto no navegador
+[ ] Cadastro de organizador funcionando
+[ ] Login funcionando
+[ ] Criação de evento funcionando
+[ ] Dashboard mostrando estatísticas
+[ ] Cadastro de usuário funcionando
+[ ] Compra de ingresso funcionando
+[ ] Métricas atualizando no dashboard
+
+Se todos os itens estiverem marcados: SISTEMA 100% FUNCIONAL! 🎉
+
+================================================================================
+DÚVIDAS OU PROBLEMAS?
+================================================================================
+
+Se algo não funcionar:
+1. Leia a seção "PROBLEMAS COMUNS E SOLUÇÕES" acima
+2. Verifique os logs nos terminais (procure erros em vermelho)
+3. Verifique o Console do navegador (F12 → Console)
+4. Certifique-se de que todos os serviços estão rodando
+
+Boa sorte! 🚀
+
+================================================================================
+FIM DO GUIA
+================================================================================

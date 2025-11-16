@@ -1,0 +1,139 @@
+====================================================================================================
+GUIA RÁPIDO: INICIAR O SISTEMA DE EVENTOS (LOCAL - SEM DOCKER)
+====================================================================================================
+
+📋 PRÉ-REQUISITOS:
+✅ JDK 17 instalado em: C:\Program Files\Java\jdk-17
+✅ Bancos PostgreSQL rodando (via Docker)
+✅ Todos os serviços compilados
+
+====================================================================================================
+PASSO 1: ABRIR 5 TERMINAIS CMD (UM PARA CADA SERVIÇO)
+====================================================================================================
+
+Pressione Windows + R, digite "cmd", Enter
+Faça isso 5 vezes para ter 5 terminais abertos
+
+====================================================================================================
+PASSO 2: INICIAR CADA SERVIÇO (UM TERMINAL POR VEZ)
+====================================================================================================
+
+TERMINAL 1 - SERVICE DISCOVERY (EUREKA):
+────────────────────────────────────────────────────────────────────────
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\service-discovery
+set JAVA_HOME=C:\Program Files\Java\jdk-17
+set PATH=%JAVA_HOME%\bin;%PATH%
+java -jar target\service-discovery-0.0.1-SNAPSHOT.jar
+
+⏱ Aguarde 10 segundos antes de iniciar o próximo!
+📌 Porta: 8761
+📌 URL: http://localhost:8761
+
+
+TERMINAL 2 - AUTH SERVICE:
+────────────────────────────────────────────────────────────────────────
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\auth-service
+set JAVA_HOME=C:\Program Files\Java\jdk-17
+set PATH=%JAVA_HOME%\bin;%PATH%
+java -jar target\authservice-0.0.1-SNAPSHOT.jar
+
+📌 Porta: 8084
+
+
+TERMINAL 3 - EVENT SERVICE:
+────────────────────────────────────────────────────────────────────────
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\event-service
+set JAVA_HOME=C:\Program Files\Java\jdk-17
+set PATH=%JAVA_HOME%\bin;%PATH%
+java -jar target\event-service-0.0.1-SNAPSHOT.jar
+
+📌 Porta: 8083
+
+
+TERMINAL 4 - TICKET SERVICE:
+────────────────────────────────────────────────────────────────────────
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\ticket-service
+set JAVA_HOME=C:\Program Files\Java\jdk-17
+set PATH=%JAVA_HOME%\bin;%PATH%
+java -jar target\ticket-service-0.0.1-SNAPSHOT.jar
+
+📌 Porta: 8085
+
+
+TERMINAL 5 - GATEWAY SERVICE:
+────────────────────────────────────────────────────────────────────────
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\gateway-service
+set JAVA_HOME=C:\Program Files\Java\jdk-17
+set PATH=%JAVA_HOME%\bin;%PATH%
+java -jar target\gateway-service-0.0.1-SNAPSHOT.jar
+
+📌 Porta: 8080
+
+
+====================================================================================================
+PASSO 3: VERIFICAR SE TUDO ESTÁ FUNCIONANDO
+====================================================================================================
+
+1. Abra o navegador e acesse: http://localhost:8761
+
+2. Verifique se todos os 4 serviços aparecem registrados:
+   ✅ AUTH-SERVICE
+   ✅ EVENT-SERVICE
+   ✅ TICKET-SERVICE
+   ✅ GATEWAY-SERVICE
+
+3. Abra o frontend:
+   Navegue até: C:\Users\isabe\sistema_eventos\1146AN-nginx-main\frontend\index.html
+   Clique duas vezes no arquivo para abrir no navegador
+
+====================================================================================================
+📊 RESUMO DAS PORTAS:
+====================================================================================================
+
+SERVIÇOS:
+- 8761 → Eureka (Service Discovery)
+- 8080 → Gateway Service
+- 8084 → Auth Service
+- 8083 → Event Service
+- 8085 → Ticket Service
+
+BANCOS (Docker):
+- 5432 → PostgreSQL Auth
+- 5433 → PostgreSQL Events
+- 5434 → PostgreSQL Tickets
+
+====================================================================================================
+🛑 PARA PARAR TUDO:
+====================================================================================================
+
+Pressione Ctrl+C em cada terminal (um por um)
+
+Para parar os bancos PostgreSQL:
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main
+docker-compose down
+
+====================================================================================================
+⚠️ PROBLEMAS COMUNS:
+====================================================================================================
+
+PROBLEMA: "Address already in use" ou "Port already in use"
+SOLUÇÃO: Algum serviço já está rodando naquela porta
+   1. Feche todos os terminais
+   2. Verifique: netstat -ano | findstr :8080
+   3. Finalize o processo usando o PID mostrado
+   4. Reinicie os serviços
+
+PROBLEMA: Serviço não aparece no Eureka
+SOLUÇÃO: Aguarde 30-60 segundos. O registro não é instantâneo.
+
+PROBLEMA: "Cannot connect to Eureka"
+SOLUÇÃO: Certifique-se que o Service Discovery (Eureka) foi iniciado PRIMEIRO
+
+====================================================================================================
+✅ DICA PRO:
+====================================================================================================
+
+Depois de iniciar, deixe todos os terminais abertos e minimizados.
+Você pode ver os logs em tempo real em cada terminal!
+
+====================================================================================================

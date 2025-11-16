@@ -1,0 +1,151 @@
+================================================================================
+  COMO INSTALAR O JDK 17
+================================================================================
+
+PROBLEMA: Você tem JRE 8, mas precisa do JDK 17 para compilar o código
+
+SOLUÇÃO: Instalar o JDK 17
+
+================================================================================
+OPÇÃO A: ORACLE JDK 17 (Oficial)
+================================================================================
+
+1. Acesse: https://www.oracle.com/java/technologies/downloads/#java17
+
+2. Escolha: Windows → x64 Installer
+
+3. Baixe o arquivo: jdk-17_windows-x64_bin.exe
+
+4. Execute o instalador
+   - Clique "Next" em tudo
+   - Deixe o caminho padrão: C:\Program Files\Java\jdk-17
+
+5. Aguarde a instalação (1-2 minutos)
+
+6. Configure as variáveis de ambiente:
+
+   a) Pressione: Windows + R
+   b) Digite: sysdm.cpl
+   c) Clique na aba "Avançado"
+   d) Clique em "Variáveis de Ambiente"
+
+   e) Na seção "Variáveis do sistema":
+      - Clique em "Novo"
+      - Nome da variável: JAVA_HOME
+      - Valor: C:\Program Files\Java\jdk-17
+      - Clique "OK"
+
+   f) Ainda em "Variáveis do sistema":
+      - Procure a variável "Path"
+      - Clique em "Editar"
+      - Clique em "Novo"
+      - Adicione: %JAVA_HOME%\bin
+      - Clique "OK" em tudo
+
+7. Feche TODOS os terminais abertos
+
+8. Abra um NOVO terminal e teste:
+
+   java -version
+   (Deve mostrar: java version "17.0.x")
+
+   javac -version
+   (Deve mostrar: javac 17.0.x)
+
+9. Agora você pode rodar os serviços com mvnw.cmd!
+
+================================================================================
+OPÇÃO B: ADOPTIUM ECLIPSE TEMURIN 17 (Open Source - Recomendado)
+================================================================================
+
+1. Acesse: https://adoptium.net/temurin/releases/?version=17
+
+2. Escolha:
+   - Operating System: Windows
+   - Architecture: x64
+   - Package Type: JDK
+   - Version: 17 - LTS
+
+3. Clique em ".msi" para baixar o instalador
+
+4. Execute o instalador
+   - Marque a opção: "Set JAVA_HOME variable"
+   - Marque a opção: "Add to PATH"
+   - Clique "Next" até o fim
+
+5. Aguarde a instalação
+
+6. Feche TODOS os terminais
+
+7. Abra um NOVO terminal e teste:
+
+   java -version
+   javac -version
+
+8. Pronto! Agora pode usar mvnw.cmd spring-boot:run
+
+================================================================================
+OPÇÃO C: USAR CHOCOLATEY (Gerenciador de Pacotes)
+================================================================================
+
+Se você tem Chocolatey instalado:
+
+1. Abra PowerShell como Administrador
+
+2. Execute:
+   choco install openjdk17
+
+3. Feche e reabra o terminal
+
+4. Teste:
+   java -version
+   javac -version
+
+================================================================================
+VERIFICAR SE DEU CERTO
+================================================================================
+
+Abra um NOVO terminal CMD e execute:
+
+java -version
+
+Deve aparecer algo como:
+openjdk version "17.0.x" ...
+
+javac -version
+
+Deve aparecer:
+javac 17.0.x
+
+Se ambos funcionarem, está pronto! ✅
+
+================================================================================
+DEPOIS DE INSTALAR
+================================================================================
+
+Agora você pode rodar os comandos:
+
+Terminal 1:
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\service-discovery
+mvnw.cmd spring-boot:run
+
+Terminal 2:
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\auth-service
+mvnw.cmd spring-boot:run
+
+E assim por diante...
+
+================================================================================
+OU SIMPLESMENTE USE DOCKER (MAIS FÁCIL!)
+================================================================================
+
+Se você já tem Docker Desktop rodando, é muito mais simples:
+
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main
+docker-compose up -d
+
+Pronto! Tudo funcionando sem precisar instalar JDK.
+
+================================================================================
+FIM
+================================================================================

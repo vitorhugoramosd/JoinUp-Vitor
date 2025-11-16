@@ -1,0 +1,273 @@
+================================================================================
+  GUIA: RODAR O SISTEMA COM DOCKER (SOLUÇÃO MAIS RÁPIDA!)
+================================================================================
+
+IMPORTANTE: Esta é a forma MAIS FÁCIL de rodar o sistema!
+Não precisa instalar JDK, Maven, ou configurar nada.
+
+================================================================================
+PRÉ-REQUISITOS
+================================================================================
+
+✅ Docker Desktop instalado e RODANDO (ícone verde)
+
+================================================================================
+PASSO ÚNICO: INICIAR TUDO
+================================================================================
+
+1. Abra UM terminal CMD (Windows + R → cmd → Enter)
+
+2. Navegue até a pasta do projeto:
+
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main
+
+3. Execute o comando:
+
+docker-compose up -d
+
+4. AGUARDE: Primeira vez leva 3-5 minutos (baixa imagens e compila)
+
+5. Acompanhe o progresso:
+
+docker-compose logs -f
+
+(Pressione Ctrl+C para sair dos logs, os serviços continuam rodando)
+
+================================================================================
+O QUE VAI ACONTECER
+================================================================================
+
+O Docker vai:
+✅ Baixar imagens do PostgreSQL (se não tiver)
+✅ Criar 3 bancos de dados (auth, events, tickets)
+✅ Compilar os 5 serviços Java
+✅ Iniciar tudo automaticamente
+✅ Configurar a rede entre os serviços
+
+TOTAL: ~3-5 minutos na primeira vez
+       ~30 segundos nas próximas vezes
+
+================================================================================
+VERIFICAR SE ESTÁ FUNCIONANDO
+================================================================================
+
+1. Ver containers rodando:
+
+docker-compose ps
+
+Deve mostrar todos como "Up":
+- postgres-auth
+- postgres-events
+- postgres-tickets
+- pgadmin
+- service-discovery
+- auth-service
+- event-service
+- gateway-service
+- ticket-service
+
+2. Acessar Eureka:
+
+http://localhost:8761
+
+Deve mostrar os 4 serviços registrados
+
+3. Abrir frontend:
+
+C:\Users\isabe\sistema_eventos\1146AN-nginx-main\frontend\index.html
+
+================================================================================
+PORTAS UTILIZADAS
+================================================================================
+
+Serviços:
+- 8761 - Eureka (Service Discovery)
+- 8084 - Auth Service
+- 8083 - Event Service
+- 8080 - Gateway Service
+- 8085 - Ticket Service
+
+Bancos de Dados:
+- 5432 - PostgreSQL Auth
+- 5433 - PostgreSQL Events
+- 5434 - PostgreSQL Tickets
+- 5050 - PgAdmin
+
+================================================================================
+COMANDOS ÚTEIS
+================================================================================
+
+Ver logs de TODOS os serviços:
+docker-compose logs -f
+
+Ver logs de UM serviço específico:
+docker-compose logs -f auth-service
+docker-compose logs -f event-service
+docker-compose logs -f ticket-service
+
+Ver status dos containers:
+docker-compose ps
+
+Reiniciar UM serviço:
+docker-compose restart auth-service
+
+Parar tudo:
+docker-compose down
+
+Parar e APAGAR dados (bancos de dados):
+docker-compose down -v
+
+Reiniciar tudo do zero:
+docker-compose down
+docker-compose up -d
+
+================================================================================
+PARAR O SISTEMA
+================================================================================
+
+Parar todos os serviços (mantém dados):
+docker-compose down
+
+Parar e apagar TUDO (incluindo bancos):
+docker-compose down -v
+
+================================================================================
+PROBLEMAS COMUNS
+================================================================================
+
+──────────────────────────────────────────────────────────────────────────────
+PROBLEMA: "port is already allocated"
+──────────────────────────────────────────────────────────────────────────────
+
+SOLUÇÃO:
+Algum serviço já está usando a porta. Feche programas na porta indicada:
+
+1. Ver o que está usando a porta 8080:
+   netstat -ano | findstr :8080
+
+2. Anotar o PID (último número)
+
+3. Abrir Gerenciador de Tarefas (Ctrl+Shift+Esc)
+
+4. Ir na aba "Detalhes"
+
+5. Procurar pelo PID e finalizar
+
+OU simplesmente:
+docker-compose down
+(esperar 10 segundos)
+docker-compose up -d
+
+──────────────────────────────────────────────────────────────────────────────
+PROBLEMA: Container não inicia
+──────────────────────────────────────────────────────────────────────────────
+
+Ver o erro:
+docker-compose logs nome-do-servico
+
+Exemplo:
+docker-compose logs auth-service
+
+Reiniciar aquele serviço:
+docker-compose restart auth-service
+
+──────────────────────────────────────────────────────────────────────────────
+PROBLEMA: Demora muito para compilar
+──────────────────────────────────────────────────────────────────────────────
+
+Normal na primeira vez (3-5 minutos).
+O Docker precisa:
+- Baixar imagem do Java
+- Baixar todas as dependências Maven
+- Compilar o código
+
+Das próximas vezes será rápido (30 segundos).
+
+──────────────────────────────────────────────────────────────────────────────
+PROBLEMA: Serviço não registra no Eureka
+──────────────────────────────────────────────────────────────────────────────
+
+Aguarde 30-60 segundos. O registro não é instantâneo.
+
+Verificar logs:
+docker-compose logs -f service-discovery
+
+Reiniciar tudo:
+docker-compose restart
+
+================================================================================
+VANTAGENS DO DOCKER
+================================================================================
+
+✅ Não precisa instalar JDK
+✅ Não precisa instalar Maven
+✅ Não precisa instalar PostgreSQL
+✅ Tudo isolado (não bagunça sua máquina)
+✅ Ambiente igual para todo mundo
+✅ Fácil de resetar (docker-compose down -v)
+✅ Fácil de compartilhar
+
+================================================================================
+TESTAR O SISTEMA
+================================================================================
+
+Siga o mesmo fluxo de teste do GUIA_COMPLETO_INICIALIZACAO.txt:
+
+1. Abrir frontend
+2. Cadastrar organizador
+3. Criar evento
+4. Cadastrar usuário
+5. Comprar ingresso
+6. Ver dashboard
+
+================================================================================
+ACESSAR OS BANCOS DE DADOS
+================================================================================
+
+Opção 1: PgAdmin (Interface Gráfica)
+
+1. Acesse: http://localhost:5050
+
+2. Login:
+   Email: admin@eventos.com
+   Senha: admin123
+
+3. Adicionar servidor:
+   Nome: Auth DB
+   Host: postgres-auth
+   Port: 5432
+   Database: auth_db
+   User: auth_user
+   Password: auth_pass
+
+Opção 2: DBeaver ou outro cliente
+
+Host: localhost
+Port: 5432 (auth), 5433 (events), 5434 (tickets)
+Database: auth_db, events_db, tickets_db
+User: auth_user, events_user, tickets_user
+Password: auth_pass, events_pass, tickets_pass
+
+================================================================================
+RESUMO
+================================================================================
+
+INICIAR:
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main
+docker-compose up -d
+
+VERIFICAR:
+docker-compose ps
+http://localhost:8761
+
+USAR:
+Abrir: C:\Users\isabe\sistema_eventos\1146AN-nginx-main\frontend\index.html
+
+PARAR:
+docker-compose down
+
+SIMPLES ASSIM! 🚀
+
+================================================================================
+FIM
+================================================================================

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema de Eventos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">Sistema de Eventos</h1>
+            <div class="nav-links">
+                <a href="index.html">Eventos</a>
+                <a href="criar-evento.html">Criar Evento</a>
+                <span id="userInfo"></span>
+                <button onclick="logout()">Sair</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h2>Dashboard do Organizador</h2>
+            <p style="color: #666; margin-top: 10px;">Visualize as métricas de vendas dos seus eventos</p>
+        </div>
+
+        <div id="loading" style="text-align: center; padding: 40px;">
+            Carregando dashboard...
+        </div>
+
+        <div id="statsSection" style="display: none;">
+            <!-- Cards de Estatísticas Gerais -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total de Eventos</h3>
+                    <div class="stat-value" id="totalEvents">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Ingressos Vendidos</h3>
+                    <div class="stat-value" id="totalTicketsSold">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Receita Total</h3>
+                    <div class="stat-value" id="totalRevenue">R$ 0,00</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Taxa Média de Ocupação</h3>
+                    <div class="stat-value" id="avgOccupancy">0%</div>
+                </div>
+            </div>
+
+            <!-- Tabela de Eventos com Métricas -->
+            <div class="event-table">
+                <h3 style="margin-bottom: 20px;">Meus Eventos</h3>
+                <table id="eventsTable">
+                    <thead>
+                        <tr>
+                            <th>Evento</th>
+                            <th>Data</th>
+                            <th>Local</th>
+                            <th>Preço</th>
+                            <th>Total Ingressos</th>
+                            <th>Vendidos</th>
+                            <th>Disponíveis</th>
+                            <th>Receita</th>
+                            <th>Ocupação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eventsTableBody">
+                        <!-- Linhas serão adicionadas aqui -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="noEvents" style="display: none; text-align: center; padding: 40px; color: #666;">
+                <p style="font-size: 18px; margin-bottom: 20px;">Você ainda não criou nenhum evento</p>
+                <a href="criar-evento.html" class="btn-primary" style="display: inline-block; text-decoration: none;">
+                    Criar Meu Primeiro Evento
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_EVENT = 'http://localhost:8080';
+
+        window.onload = function() {
+            // Verificar autenticação e role
+            const token = localStorage.getItem('jwt_token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+            if (!token || user.role !== 'ORGANIZER') {
+                alert('Acesso negado. Apenas organizadores podem acessar o dashboard.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('userInfo').innerHTML =
+                `<span style="margin-right: 15px;">Olá, ${user.firstName || user.email}</span>`;
+
+            loadDashboard(user.id);
+        };
+
+        function logout() {
+            localStorage.removeItem('jwt_token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        async function loadDashboard(organizerId) {
+            const token = localStorage.getItem('jwt_token');
+
+            try {
+                const response = await fetch(`${API_EVENT}/api/dashboard/organizer/${organizerId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar dashboard');
+                }
+
+                const events = await response.json();
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('statsSection').style.display = 'block';
+
+                if (events.length === 0) {
+                    document.getElementById('noEvents').style.display = 'block';
+                    return;
+                }
+
+                displayDashboard(events);
+            } catch (error) {
+                console.error('Erro ao carregar dashboard:', error);
+                document.getElementById('loading').innerHTML =
+                    '<p style="color: red;">Erro ao carregar dashboard. Verifique se os serviços estão rodando.</p>';
+            }
+        }
+
+        function displayDashboard(events) {
+            // Calcular estatísticas gerais
+            let totalTicketsSold = 0;
+            let totalRevenue = 0;
+            let totalOccupancy = 0;
+
+            events.forEach(event => {
+                totalTicketsSold += event.ticketsSold || 0;
+                totalRevenue += event.totalRevenue || 0;
+                totalOccupancy += event.occupancyRate || 0;
+            });
+
+            const avgOccupancy = events.length > 0 ? (totalOccupancy / events.length).toFixed(2) : 0;
+
+            // Atualizar cards de estatísticas
+            document.getElementById('totalEvents').textContent = events.length;
+            document.getElementById('totalTicketsSold').textContent = totalTicketsSold;
+            document.getElementById('totalRevenue').textContent = `R$ ${totalRevenue.toFixed(2)}`;
+            document.getElementById('avgOccupancy').textContent = `${avgOccupancy}%`;
+
+            // Preencher tabela
+            const tbody = document.getElementById('eventsTableBody');
+            tbody.innerHTML = '';
+
+            events.forEach(event => {
+                const row = document.createElement('tr');
+
+                const date = new Date(event.eventDate);
+                const formattedDate = date.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+
+                const occupancyColor = getOccupancyColor(event.occupancyRate || 0);
+
+                row.innerHTML = `
+                    <td><strong>${event.name}</strong></td>
+                    <td>${formattedDate}</td>
+                    <td>${event.location}</td>
+                    <td>R$ ${event.ticketPrice.toFixed(2)}</td>
+                    <td>${event.totalTickets}</td>
+                    <td><strong>${event.ticketsSold || 0}</strong></td>
+                    <td>${event.availableTickets}</td>
+                    <td><strong style="color: #27ae60;">R$ ${(event.totalRevenue || 0).toFixed(2)}</strong></td>
+                    <td>
+                        <span style="color: ${occupancyColor}; font-weight: bold;">
+                            ${(event.occupancyRate || 0).toFixed(2)}%
+                        </span>
+                        <div class="progress-bar" style="margin-top: 5px;">
+                            <div class="progress-fill" style="width: ${event.occupancyRate || 0}%; background-color: ${occupancyColor};"></div>
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        function getOccupancyColor(percentage) {
+            if (percentage >= 80) return '#27ae60'; // Verde
+            if (percentage >= 50) return '#f39c12'; // Amarelo
+            if (percentage >= 20) return '#e67e22'; // Laranja
+            return '#e74c3c'; // Vermelho
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+====================================================================================================
+COMO TESTAR O FRONTEND DO SISTEMA DE EVENTOS
+====================================================================================================
+
+IMPORTANTE: Certifique-se que todos os 5 servicos estao rodando antes de testar!
+
+====================================================================================================
+PASSO 1: ABRIR O FRONTEND
+====================================================================================================
+
+1. Navegue ate: C:\Users\isabe\sistema_eventos\1146AN-nginx-main\frontend
+2. Clique duas vezes em: login.html
+3. O navegador vai abrir automaticamente
+
+====================================================================================================
+PASSO 2: CRIAR UMA CONTA (REGISTRO)
+====================================================================================================
+
+1. Na tela de login, clique em "Registrar"
+2. Preencha os dados:
+   - Nome: Seu nome
+   - Sobrenome: Seu sobrenome
+   - Email: seu@email.com
+   - Senha: suasenha123
+   - Tipo de Usuario:
+     * USER (para comprar ingressos)
+     * ORGANIZER (para criar eventos)
+
+3. Clique em "Registrar"
+4. Se aparecer mensagem de sucesso, voce esta conectado ao backend!
+
+====================================================================================================
+PASSO 3: FAZER LOGIN
+====================================================================================================
+
+1. Volte para a aba "Login"
+2. Digite seu email e senha
+3. Clique em "Entrar"
+4. Voce sera redirecionado para a pagina de eventos
+
+====================================================================================================
+PASSO 4: TESTAR COMO ORGANIZADOR (CRIAR EVENTOS)
+====================================================================================================
+
+Se voce se registrou como ORGANIZER:
+
+1. Na pagina de eventos (index.html), clique em "Criar Evento"
+2. Preencha os dados do evento:
+   - Nome do Evento
+   - Data
+   - Local
+   - Descricao
+   - Preco do Ingresso
+   - Quantidade de Ingressos
+
+3. Clique em "Criar Evento"
+4. O evento aparecera na lista de eventos
+
+====================================================================================================
+PASSO 5: TESTAR COMO USUARIO (COMPRAR INGRESSOS)
+====================================================================================================
+
+Se voce se registrou como USER:
+
+1. Na lista de eventos, clique em um evento
+2. Clique em "Comprar Ingressos"
+3. Preencha:
+   - Quantidade de ingressos
+   - Dados dos participantes (nome, email, CPF)
+
+4. Clique em "Finalizar Compra"
+5. Voce vera a confirmacao da compra
+
+====================================================================================================
+PASSO 6: VER DASHBOARD (APENAS ORGANIZADORES)
+====================================================================================================
+
+1. Acesse: dashboard.html
+2. Voce vera:
+   - Total de eventos criados
+   - Total de ingressos vendidos
+   - Receita total
+   - Lista de seus eventos com metricas
+
+====================================================================================================
+ENDPOINTS DA API QUE O FRONTEND USA:
+====================================================================================================
+
+AUTENTICACAO (via Gateway - porta 8080):
+- POST http://localhost:8080/api/auth/register
+- POST http://localhost:8080/api/auth/login
+
+EVENTOS:
+- GET    http://localhost:8080/api/events (lista todos)
+- GET    http://localhost:8080/api/events/{id} (detalhes)
+- POST   http://localhost:8080/api/events (criar - requer autenticacao)
+- PUT    http://localhost:8080/api/events/{id} (editar)
+- DELETE http://localhost:8080/api/events/{id} (deletar)
+
+INGRESSOS:
+- POST http://localhost:8080/api/tickets/purchase (comprar)
+- GET  http://localhost:8080/api/tickets/user/{userId} (seus ingressos)
+
+====================================================================================================
+PROBLEMAS COMUNS E SOLUCOES:
+====================================================================================================
+
+PROBLEMA: "Failed to fetch" ou "Network error"
+SOLUCAO:
+  1. Verifique se todos os 5 servicos estao rodando
+  2. Acesse http://localhost:8761 para ver se todos estao registrados
+  3. Verifique se o gateway esta na porta 8080: http://localhost:8080
+
+PROBLEMA: "401 Unauthorized" ao criar evento
+SOLUCAO:
+  1. Certifique-se que voce fez login
+  2. Verifique se o token JWT esta sendo salvo (abra DevTools > Application > Local Storage)
+  3. Se registrou como USER, voce nao pode criar eventos - registre como ORGANIZER
+
+PROBLEMA: Nenhum evento aparece
+SOLUCAO:
+  1. Crie alguns eventos primeiro como ORGANIZER
+  2. Verifique o console do navegador (F12) para ver erros
+  3. Teste a API diretamente: http://localhost:8080/api/events
+
+PROBLEMA: Campos nao aparecem ou estao bugados
+SOLUCAO:
+  1. Limpe o cache do navegador (Ctrl + Shift + Del)
+  2. Recarregue a pagina (F5)
+  3. Tente outro navegador
+
+====================================================================================================
+TESTANDO A API DIRETAMENTE (SEM FRONTEND):
+====================================================================================================
+
+Voce pode testar usando Postman, Insomnia ou curl:
+
+1. REGISTRAR:
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Teste",
+    "lastName": "Usuario",
+    "email": "teste@email.com",
+    "password": "senha123",
+    "role": "ORGANIZER"
+  }'
+
+2. LOGIN:
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "teste@email.com",
+    "password": "senha123"
+  }'
+
+3. LISTAR EVENTOS:
+curl http://localhost:8080/api/events
+
+====================================================================================================
+DICAS PRO:
+====================================================================================================
+
+1. Abra o DevTools do navegador (F12) para ver requisicoes e respostas
+2. Na aba Network, voce pode ver todas as chamadas para a API
+3. Na aba Console, voce ve logs do JavaScript
+4. Na aba Application > Local Storage, voce ve o token JWT salvo
+
+====================================================================================================
+FLUXO COMPLETO DE TESTE:
+====================================================================================================
+
+1. Abrir login.html
+2. Registrar como ORGANIZER
+3. Fazer login
+4. Criar 2-3 eventos
+5. Fazer logout
+6. Registrar como USER
+7. Fazer login
+8. Navegar pelos eventos
+9. Comprar ingressos
+10. Fazer logout
+11. Login como ORGANIZER novamente
+12. Abrir dashboard.html para ver as vendas
+
+====================================================================================================
+RESUMO DOS ARQUIVOS:
+====================================================================================================
+
+frontend/
+├── login.html          - Login e registro
+├── index.html          - Lista de eventos
+├── evento-detalhes.html - Detalhes de um evento
+├── comprar.html        - Formulario de compra
+├── criar-evento.html   - Formulario para criar evento
+└── dashboard.html      - Dashboard do organizador
+
+====================================================================================================
+BOA SORTE COM OS TESTES! 🚀
+====================================================================================================

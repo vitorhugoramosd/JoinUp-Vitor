@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Evento - Sistema de Eventos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">Sistema de Eventos</h1>
+            <div class="nav-links">
+                <a href="index.html">Eventos</a>
+                <span id="userInfo"></span>
+                <a href="login.html" id="loginLink">Login</a>
+                <button id="logoutBtn" style="display:none;" onclick="logout()">Sair</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="loading" style="text-align: center; padding: 40px;">
+            Carregando detalhes do evento...
+        </div>
+
+        <div id="eventDetails" class="event-details" style="display: none;">
+            <a href="index.html" style="text-decoration: none; color: #3498db; margin-bottom: 20px; display: inline-block;">
+                ← Voltar para eventos
+            </a>
+
+            <h2 id="eventName"></h2>
+            <p id="eventDescription" style="font-size: 18px; color: #666; margin: 20px 0;"></p>
+
+            <div class="event-details-info">
+                <div class="info-item">
+                    <strong>Data e Hora:</strong>
+                    <p id="eventDate"></p>
+                </div>
+                <div class="info-item">
+                    <strong>Local:</strong>
+                    <p id="eventLocation"></p>
+                </div>
+                <div class="info-item">
+                    <strong>Preço do Ingresso:</strong>
+                    <p id="eventPrice"></p>
+                </div>
+                <div class="info-item">
+                    <strong>Disponibilidade:</strong>
+                    <p id="eventAvailability"></p>
+                </div>
+            </div>
+
+            <div class="progress-bar" style="margin: 30px 0;">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            <p id="occupancyText" style="text-align: center; color: #666;"></p>
+
+            <div id="purchaseSection" style="margin-top: 40px; text-align: center;">
+                <button onclick="goToPurchase()" class="btn-primary" style="width: auto; padding: 15px 40px; font-size: 16px;">
+                    Comprar Ingressos
+                </button>
+            </div>
+
+            <div id="loginPrompt" style="display: none; margin-top: 40px; text-align: center; padding: 30px; background: #f8f9fa; border-radius: 10px;">
+                <p style="margin-bottom: 15px; font-size: 16px;">
+                    Você precisa estar logado para comprar ingressos
+                </p>
+                <a href="login.html" class="btn-primary" style="display: inline-block; text-decoration: none; width: auto;">
+                    Fazer Login / Cadastrar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        let currentEvent = null;
+
+        window.onload = function() {
+            checkAuth();
+            loadEventDetails();
+        };
+
+        function checkAuth() {
+            const token = localStorage.getItem('jwt_token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+            if (token && user.email) {
+                document.getElementById('loginLink').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'inline-block';
+                document.getElementById('userInfo').innerHTML =
+                    `<span style="margin-right: 15px;">Olá, ${user.firstName || user.email}</span>`;
+
+                // Mostrar botão de compra
+                document.getElementById('purchaseSection').style.display = 'block';
+                document.getElementById('loginPrompt').style.display = 'none';
+
+                // Se for organizador, mostrar link para dashboard
+                if (user.role === 'ORGANIZER') {
+                    document.getElementById('userInfo').innerHTML +=
+                        `<a href="dashboard.html" style="margin-right: 15px;">Dashboard</a>
+                         <a href="criar-evento.html" style="margin-right: 15px;">Criar Evento</a>`;
+                }
+            } else {
+                // Não está logado, mostrar prompt de login
+                document.getElementById('purchaseSection').style.display = 'none';
+                document.getElementById('loginPrompt').style.display = 'block';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('jwt_token');
+            localStorage.removeItem('user');
+            window.location.reload();
+        }
+
+        async function loadEventDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('id');
+
+            if (!eventId) {
+                alert('ID do evento não fornecido');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/events/${eventId}`);
+
+                if (!response.ok) {
+                    throw new Error('Evento não encontrado');
+                }
+
+                currentEvent = await response.json();
+                displayEventDetails(currentEvent);
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('eventDetails').style.display = 'block';
+            } catch (error) {
+                console.error('Erro ao carregar evento:', error);
+                alert('Erro ao carregar detalhes do evento');
+                window.location.href = 'index.html';
+            }
+        }
+
+        function displayEventDetails(event) {
+            document.getElementById('eventName').textContent = event.name;
+            document.getElementById('eventDescription').textContent = event.description || 'Sem descrição';
+
+            const date = new Date(event.eventDate);
+            document.getElementById('eventDate').textContent = date.toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            document.getElementById('eventLocation').textContent = event.location;
+            document.getElementById('eventPrice').textContent = `R$ ${event.ticketPrice.toFixed(2)}`;
+
+            const available = event.availableTickets || 0;
+            const total = event.totalTickets || 0;
+            const sold = total - available;
+            const percentage = total > 0 ? (sold / total * 100).toFixed(0) : 0;
+
+            document.getElementById('eventAvailability').innerHTML =
+                `<span style="font-size: 20px; color: ${available > 0 ? '#27ae60' : '#e74c3c'};">
+                    ${available} de ${total} ingressos disponíveis
+                </span>`;
+
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+            document.getElementById('occupancyText').textContent = `${percentage}% dos ingressos vendidos`;
+
+            // Desabilitar compra se não houver ingressos
+            if (available === 0) {
+                document.getElementById('purchaseSection').innerHTML =
+                    '<p style="color: #e74c3c; font-size: 18px; font-weight: bold;">Ingressos Esgotados</p>';
+            }
+        }
+
+        function goToPurchase() {
+            if (currentEvent && currentEvent.availableTickets > 0) {
+                window.location.href = `comprar.html?eventId=${currentEvent.id}`;
+            }
+        }
+    </script>
+</body>
+</html>

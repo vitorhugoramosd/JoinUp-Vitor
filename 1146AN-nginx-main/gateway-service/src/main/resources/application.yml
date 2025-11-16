@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        # Auth Service - Register
+        - id: auth-register
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/auth/register
+          filters:
+            - RewritePath=/api/auth/register, /users
+
+        # Auth Service - Login
+        - id: auth-login
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/auth/login
+          filters:
+            - RewritePath=/api/auth/login, /auth/login/password
+
+        # Event Service Routes
+        - id: event-service
+          uri: lb://EVENT-SERVICE
+          predicates:
+            - Path=/api/events/**, /api/organizer/**, /api/dashboard/**
+
+        # Ticket Service Routes
+        - id: ticket-service
+          uri: lb://TICKET-SERVICE
+          predicates:
+            - Path=/api/tickets/**
+
+      # Enable CORS
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: false
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    fetch-registry: true
+    register-with-eureka: true
+
+# Server Port
+server:
+  port: 8080
+
+# JWT Secret
+jwt:
+  secret: UmaSenhaBemLongaParaNossaAplicacao

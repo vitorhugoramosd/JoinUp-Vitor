@@ -1,0 +1,112 @@
+================================================================================
+  COMANDOS CORRETOS PARA INICIAR OS SERVIÇOS
+================================================================================
+
+IMPORTANTE: Use mvnw.cmd ao invés de mvn (já está incluído no projeto!)
+
+================================================================================
+ABRA 5 TERMINAIS CMD E COLE ESTES COMANDOS:
+================================================================================
+
+──────────────────────────────────────────────────────────────────────────────
+TERMINAL 1 - EUREKA (Service Discovery)
+──────────────────────────────────────────────────────────────────────────────
+
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\service-discovery
+mvnw.cmd spring-boot:run
+
+AGUARDE: "Started ServiceDiscoveryApplication"
+PORTA: 8761
+TEMPO: ~60 segundos
+
+──────────────────────────────────────────────────────────────────────────────
+TERMINAL 2 - AUTH SERVICE
+──────────────────────────────────────────────────────────────────────────────
+
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\auth-service
+mvnw.cmd spring-boot:run
+
+AGUARDE: "Started AuthServiceApplication"
+PORTA: 8084
+TEMPO: ~45 segundos
+
+──────────────────────────────────────────────────────────────────────────────
+TERMINAL 3 - EVENT SERVICE
+──────────────────────────────────────────────────────────────────────────────
+
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\event-service
+mvnw.cmd spring-boot:run
+
+AGUARDE: "Started EventServiceApplication"
+PORTA: 8083
+TEMPO: ~45 segundos
+
+──────────────────────────────────────────────────────────────────────────────
+TERMINAL 4 - GATEWAY SERVICE
+──────────────────────────────────────────────────────────────────────────────
+
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\gateway-service
+mvnw.cmd spring-boot:run
+
+AGUARDE: "Started GatewayServiceApplication"
+PORTA: 8080
+TEMPO: ~45 segundos
+
+──────────────────────────────────────────────────────────────────────────────
+TERMINAL 5 - TICKET SERVICE
+──────────────────────────────────────────────────────────────────────────────
+
+cd C:\Users\isabe\sistema_eventos\1146AN-nginx-main\ticket-service
+mvnw.cmd spring-boot:run
+
+AGUARDE: "Started TicketServiceApplication"
+PORTA: 8085
+TEMPO: ~45 segundos
+
+================================================================================
+ORDEM DE INICIALIZAÇÃO (IMPORTANTE!)
+================================================================================
+
+1. PRIMEIRO: Eureka (Terminal 1)
+   - Aguarde aparecer "Started" antes de continuar
+
+2. DEPOIS: Auth, Event, Gateway, Ticket (pode iniciar junto)
+   - Podem rodar em paralelo
+
+================================================================================
+COMO SABER SE FUNCIONOU
+================================================================================
+
+Abra no navegador: http://localhost:8761
+
+Você deve ver a página do Eureka com 4 serviços registrados:
+✅ AUTH-SERVICE
+✅ EVENT-SERVICE
+✅ GATEWAY-SERVICE
+✅ TICKET-SERVICE
+
+(Pode levar 30-60 segundos para todos aparecerem)
+
+================================================================================
+DEPOIS DE TUDO INICIADO
+================================================================================
+
+Abra o frontend:
+C:\Users\isabe\sistema_eventos\1146AN-nginx-main\frontend\index.html
+
+OU
+
+Cole no navegador:
+file:///C:/Users/isabe/sistema_eventos/1146AN-nginx-main/frontend/index.html
+
+================================================================================
+PARA PARAR TUDO
+================================================================================
+
+Em cada terminal, pressione: Ctrl + C
+
+Ou simplesmente feche as janelas dos terminais.
+
+================================================================================
+FIM
+================================================================================

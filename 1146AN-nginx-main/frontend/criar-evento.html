@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Evento - Sistema de Eventos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">Sistema de Eventos</h1>
+            <div class="nav-links">
+                <a href="index.html">Eventos</a>
+                <a href="dashboard.html">Dashboard</a>
+                <span id="userInfo"></span>
+                <button onclick="logout()">Sair</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="form-container" style="max-width: 700px;">
+            <h2>Criar Novo Evento</h2>
+
+            <div id="alertBox" style="display: none;"></div>
+
+            <form id="createEventForm" onsubmit="handleCreateEvent(event)">
+                <div class="form-group">
+                    <label for="name">Nome do Evento *</label>
+                    <input type="text" id="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Descrição *</label>
+                    <textarea id="description" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDate">Data e Hora do Evento *</label>
+                    <input type="datetime-local" id="eventDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Local *</label>
+                    <input type="text" id="location" placeholder="Ex: São Paulo, SP - Centro de Convenções" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ticketPrice">Preço do Ingresso (R$) *</label>
+                    <input type="number" id="ticketPrice" step="0.01" min="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="totalTickets">Quantidade Total de Ingressos *</label>
+                    <input type="number" id="totalTickets" min="1" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="window.location.href='dashboard.html'">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">Criar Evento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_EVENT = 'http://localhost:8080';
+
+        window.onload = function() {
+            // Verificar autenticação e role
+            const token = localStorage.getItem('jwt_token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+            if (!token || user.role !== 'ORGANIZER') {
+                alert('Acesso negado. Apenas organizadores podem criar eventos.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('userInfo').innerHTML =
+                `<span style="margin-right: 15px;">Olá, ${user.firstName || user.email}</span>`;
+        };
+
+        function logout() {
+            localStorage.removeItem('jwt_token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.className = `alert alert-${type}`;
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        async function handleCreateEvent(event) {
+            event.preventDefault();
+
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const token = localStorage.getItem('jwt_token');
+
+            // Coletar dados do formulário
+            const name = document.getElementById('name').value;
+            const description = document.getElementById('description').value;
+            const eventDate = document.getElementById('eventDate').value;
+            const location = document.getElementById('location').value;
+            const ticketPrice = parseFloat(document.getElementById('ticketPrice').value);
+            const totalTickets = parseInt(document.getElementById('totalTickets').value);
+
+            // Converter data para formato ISO
+            const eventDateTime = new Date(eventDate).toISOString();
+
+            const eventData = {
+                name,
+                description,
+                eventDate: eventDateTime,
+                location,
+                ticketPrice,
+                totalTickets,
+                organizerId: user.id
+            };
+
+            try {
+                const response = await fetch(`${API_EVENT}/api/organizer/events`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(eventData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showAlert('Evento criado com sucesso!', 'success');
+
+                    // Redirecionar para dashboard após 2 segundos
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 2000);
+                } else {
+                    const error = await response.text();
+                    showAlert(`Erro ao criar evento: ${error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao criar evento:', error);
+                showAlert('Erro ao conectar com o servidor. Verifique se o gateway está rodando na porta 8080.', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
