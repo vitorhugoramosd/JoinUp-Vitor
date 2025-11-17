@@ -42,6 +42,19 @@ curl.exe -X POST http://localhost:8080/api/auth/login `
   -d '{\"email\":\"joao@test.com\",\"password\":\"senha123456\"}'
 ```
 
+**💡 Capturar o Token (após o login acima):**
+```powershell
+# Salvar resposta do curl em variável e extrair o token
+$loginResponse = curl.exe -X POST http://localhost:8080/api/auth/login `
+  -H "Content-Type: application/json" `
+  -d '{\"email\":\"joao@test.com\",\"password\":\"senha123456\"}' | ConvertFrom-Json
+
+$global:userToken = $loginResponse.accessToken
+Write-Host "Token salvo: $global:userToken"
+```
+
+**⚠️ Nota:** Com `curl.exe`, é mais fácil capturar o token usando `Invoke-RestMethod` (veja Opção 2 abaixo). O `curl.exe` é melhor para comandos rápidos ou quando você conhece a sintaxe do curl.
+
 ---
 
 ## Opção 2: Usar `Invoke-RestMethod` (PowerShell Nativo)
@@ -85,9 +98,9 @@ $response = Invoke-RestMethod -Uri http://localhost:8080/api/auth/login `
   -ContentType "application/json" `
   -Body $body
 
-# Salvar o token
-$token = $response.accessToken
-Write-Host "Token: $token"
+# Salvar o token em variável global para usar em outras requisições
+$global:userToken = $response.accessToken
+Write-Host "Token salvo: $global:userToken"
 ```
 
 **💡 Vantagem:** `Invoke-RestMethod` automaticamente converte JSON e é mais fácil de usar no PowerShell!
@@ -391,6 +404,26 @@ Write-Host "Token atual: $global:userToken"
 **Solução:** Verifique o JSON do body:
 ```powershell
 $body | ConvertTo-Json -Depth 10 | Write-Host
+```
+
+### Erro: "500 Internal Server Error" ao criar evento
+**Solução:** Verifique se o token foi salvo após o login:
+```powershell
+# Verificar se o token existe
+if ($null -eq $global:userToken) {
+    Write-Host "Token não encontrado! Faça login novamente:" -ForegroundColor Red
+    $body = @{
+        email = "joao@test.com"
+        password = "senha123456"
+    } | ConvertTo-Json
+    
+    $response = Invoke-RestMethod -Uri http://localhost:8080/api/auth/login `
+      -Method POST -ContentType "application/json" -Body $body
+    $global:userToken = $response.accessToken
+    Write-Host "Token salvo: $global:userToken" -ForegroundColor Green
+} else {
+    Write-Host "Token atual: $global:userToken" -ForegroundColor Green
+}
 ```
 
 ---
