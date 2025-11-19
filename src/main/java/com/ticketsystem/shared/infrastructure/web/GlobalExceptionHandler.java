@@ -64,6 +64,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        String message = "Erro ao processar JSON. Verifique o encoding (deve ser UTF-8) e a formatação do JSON.";
+        if (ex.getMessage() != null && ex.getMessage().contains("UTF-8")) {
+            message = "Erro de encoding: O JSON deve ser enviado em UTF-8. Caracteres especiais podem estar causando problemas.";
+        }
+        
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message(message)
+                .build();
+
+        log.error("JSON parsing error: {}", ex.getMessage(), ex);
+        return ResponseEntity.badRequest().body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         ErrorResponse error = ErrorResponse.builder()

@@ -39,11 +39,22 @@ public class EventOrganizerController {
     }
 
     private Long getUserIdFromToken(String authorization) {
-        if (authorization != null && authorization.startsWith("Bearer ")) {
-            String token = authorization.substring(7);
-            return jwtTokenProvider.getUserIdFromToken(token);
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            throw new IllegalStateException("Token de autorização não encontrado ou inválido");
         }
-        throw new IllegalStateException("Token não encontrado");
+        
+        String token = authorization.substring(7);
+        
+        if (!jwtTokenProvider.validateToken(token)) {
+            throw new IllegalStateException("Token inválido ou expirado");
+        }
+        
+        Long userId = jwtTokenProvider.getUserIdFromToken(token);
+        if (userId == null) {
+            throw new IllegalStateException("Token não contém userId válido");
+        }
+        
+        return userId;
     }
 }
 
